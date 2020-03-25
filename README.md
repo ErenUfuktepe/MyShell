@@ -1,10 +1,10 @@
-# MyShell
+# Shell Programming
 
-My shell program displays the command line prompt “myshell>” and waits for the user's
+This program displays the command line prompt “<directory> >” and waits for the user's
 command. It reads the user’s next command, parses it into separate tokens that are used to fill the
 argument vector for the command to be executed, and executes it.
 
-Program supports the following built-in commands 
+The program supports the following built-in commands 
 
 1) cd <directory> : change the current directory to <directory>
 

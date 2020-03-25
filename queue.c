@@ -30,24 +30,23 @@ struct Node *createNode(char* data)
  */
 struct Node *enqueue(char* data)
 {
-	struct Node* temp = createNode(data);
-	
-	if(head == NULL && tail == NULL)
-	{
-		head = tail = temp;
-		
-		return temp;
-	}
-	else
-	{
-		if(number_of_nodes() == SIZE)
-			dequeue();	
+    struct Node* temp = createNode(data);
 
-		tail->next = temp;
-		tail = temp;
-		
-		return temp;
+    if(head == NULL && tail == NULL)
+    {
+	head = tail = temp;	
+	return temp;
+    }
+    else
+    {
+	if(number_of_nodes() == SIZE)
+        {
+   	    dequeue();	
 	}
+	tail->next = temp;
+	tail = temp;
+	return temp;
+    }
 }
 
 /*
@@ -57,15 +56,16 @@ struct Node *enqueue(char* data)
  */
 void dequeue()
 {
-        struct Node *front = head;
+    struct Node *front = head;
 
-        head = head->next;
-        front->next = NULL;
+    head = head->next;
+    front->next = NULL;
 
-        if(front == head)
-        	head = NULL;
-
-    	free(front);
+    if(front == head)
+    {
+	head = NULL;
+    }
+    free(front);
 }
 
 /*
@@ -76,14 +76,15 @@ void dequeue()
  */
 int number_of_nodes()
 {
-	int count = 1;
-	struct Node *temp = head;
+    int count = 1;
+    struct Node *temp = head;
 
-	while(temp->next != NULL){
-		temp = temp -> next;
-		count++;
-	}	
-	return count;
+    while(temp->next != NULL)
+    {
+	temp = temp -> next;
+	count++;
+    }	
+    return count;
 }
 
 /*
@@ -93,14 +94,14 @@ int number_of_nodes()
  */
 void display()
 {
-	struct Node *temp = head;	
-	int count = 1;
-	
-	while(temp != NULL)
-	{
-		printf("[%d]%s\n",count,temp->data);
-	 	temp = temp -> next;
-	 	count++;
-      	}
+    struct Node *temp = head;	
+    int count = 1;
+
+    while(temp != NULL)
+    {
+	printf("[%d]%s\n",count,temp->data);
+ 	temp = temp -> next;
+ 	count++;
+    }
 }
 

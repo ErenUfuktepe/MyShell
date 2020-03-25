@@ -7,7 +7,7 @@
  */
 void recent_commands()
 {
-	display();	
+    display();	
 }
 
 /*
@@ -16,10 +16,12 @@ void recent_commands()
  */
 void current_directory()
 {
-	char cwd[PATH_MAX];
- 
-	if (getcwd(cwd, sizeof(cwd)) != NULL) 
-		printf("%s\n", cwd);
+    char cwd[PATH_MAX];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL)
+    { 
+        printf("%s\n", cwd);
+    }
 }
 
 /*
@@ -32,8 +34,10 @@ void current_directory()
  */
 void change_directory(char *path)
 {
-	if(chdir(path) < 0)
-		chdir(getenv("HOME"));
+    if(chdir(path) < 0)
+    {
+	chdir(getenv("HOME"));
+    }
 } 
 
 /*
@@ -46,15 +50,19 @@ void change_directory(char *path)
  */
 int check_executable_file(char *filename)
 {
-     	int result;
-     	struct stat sb;
-     
-     	result = stat(filename, &sb);
-     	
-     	if (result < 0 || !S_ISREG(sb.st_mode))
-     		return 0;
-     	else
-     		return 1;
+    int result;
+    struct stat sb;
+
+    result = stat(filename, &sb);
+
+    if (result < 0 || !S_ISREG(sb.st_mode))
+    {
+	return 0;
+    }
+    else
+    {
+	return 1;
+    }
 }
 
 /*
@@ -67,52 +75,59 @@ int check_executable_file(char *filename)
  */
 int find_path(char *path, char *file)
 {
-     	char *path_enviroment;
-     	char *begin, *end;
-     	int stop, found;
-     	int len;
+    char *path_enviroment;
+    char *begin, *end;
+    int stop, found;
+    int len;
 
-     	if (strchr(file, '/') != NULL) {
-	  	if (realpath(file, path) == NULL) 
-	  		return 0;
-	  	return  check_executable_file(path);
-     	}
+    if (strchr(file, '/') != NULL) {
+  	if (realpath(file, path) == NULL)
+        { 
+  	    return 0;
+	}  	
+	return  check_executable_file(path);
+    }
 
-     	path_enviroment = getenv("PATH");
-     	
-     	if (path_enviroment == NULL || strlen(path_enviroment) <= 0) 
-     		return 0;
+    path_enviroment = getenv("PATH");
 
-     	begin = path_enviroment;
-     	stop = 0; found = 0;
-     	
-     	while(!stop && !found)
-     	{
-	  	end = strchr(begin, ':');
-	  	if (end == NULL) 
-	  	{
-	       		stop = 1;
-	       		strncpy(path, begin, PATH_MAX);
-	       		len = strlen(path);
-	  	} 
-	  	else 
-	  	{
-	       		strncpy(path, begin, end - begin);
-	       		path[end - begin] = '\0';
-	       		len = end - begin;
-	  	}
-	  	
-	  	if (path[len - 1] != '/') 
-	  		strncat(path, "/", 1);
-	  	
-	  	strncat(path, file, PATH_MAX - len);
-	  	found = check_executable_file(path);
-	  	
-	  	if (!stop) 
-	  		begin = end + 1;
-     } 
-	  
-     return found;
+    if (path_enviroment == NULL || strlen(path_enviroment) <= 0) 
+    {
+	return 0;
+    }
+
+    begin = path_enviroment;
+    stop = 0; found = 0;
+
+    while(!stop && !found)
+    {
+  	end = strchr(begin, ':');
+  	if (end == NULL) 
+  	{
+	    stop = 1;
+	    strncpy(path, begin, PATH_MAX);
+	    len = strlen(path);
+  	} 
+  	else 
+  	{
+	    strncpy(path, begin, end - begin);
+	    path[end - begin] = '\0';
+	    len = end - begin;
+  	}
+  	
+  	if (path[len - 1] != '/')
+	{ 
+	    strncat(path, "/", PATH_MAX);
+  	}
+  	strncat(path, file, PATH_MAX - len);
+  	found = check_executable_file(path);
+  	
+  	if (!stop)
+	{ 
+	    begin = end + 1;
+	}
+    } 
+  
+    return found;
 }
 
 /*
@@ -125,10 +140,16 @@ int find_path(char *path, char *file)
  */
 int is_build_in_command(char* operation)
 {
-	if( strcmp(operation, "bye") == 0 || strcmp(operation, "dir") == 0 || strstr(operation, "findloc") != NULL || strcmp(operation, "history") == 0 || strstr(operation, "cd") != NULL)
-		return 1;
+	if( strcmp(operation, "bye") == 0 || strcmp(operation, "dir") == 0 || 
+		strstr(operation, "findloc") != NULL || strcmp(operation, "history") == 0 || 
+			strstr(operation, "cd") != NULL)
+	{
+  	    return 1;
+	}
 	else
-		return 0;	
+	{
+	    return 0;	
+	}
 }
 
 /*
@@ -138,34 +159,39 @@ int is_build_in_command(char* operation)
  */
 void execute_command(char *operation)
 {
-	if( strcmp(operation, "bye") == 0 )
-		exit(0);
-		
-	else if( strcmp(operation, "dir") == 0 )
-		current_directory();
+    if( strcmp(operation, "bye") == 0 )
+    {
+        exit(0);
+    }		
+    else if( strcmp(operation, "dir") == 0 )
+    {	
+	current_directory();
+    }
+    else if( strstr(operation, "findloc") != NULL )
+    {
+	char path[PATH_MAX];
 	
-	else if( strstr(operation, "findloc") != NULL )
+	remove_string(operation,"findloc ");
+	
+	if (!find_path(path, operation)) 
 	{
-		char path[PATH_MAX];
-		
-		remove_string(operation,"findloc ");
-		
-		if (!find_path(path, operation)) 
-		{
-			fprintf(stderr, "%s : is not executable or not existing\n", operation);
-     		}
-     		else
-     			puts(path);
+	     fprintf(stderr, "%s : is not executable or not existing\n", operation);
 	}
-			
-	else if( strcmp(operation, "history") == 0 )
-		recent_commands();
-		
-	else if( strstr(operation, "cd") != NULL )
+	else
 	{
-		remove_string(operation,"cd ");
-		change_directory(operation);
+	    puts(path);
 	}
+    }
+		
+    else if( strcmp(operation, "history") == 0 )
+    {
+	recent_commands();
+    }	
+    else if( strstr(operation, "cd") != NULL )
+    {
+	remove_string(operation,"cd ");
+	change_directory(operation);
+    }
 }
 
 /*
@@ -176,32 +202,32 @@ void execute_command(char *operation)
  */
 void remove_string(char *string, char *sub_string)
 {
-	int len, sub_len;
-    	int found = 0;
+    int len, sub_len;
+    int found = 0;
 
-    	len = strlen(string);
-    	sub_len = strlen(sub_string);
+    len = strlen(string);
+    sub_len = strlen(sub_string);
 
-	for(int i=0; i<len; i++)
-    	{
-        	found = 1;
-        	for(int j=0; j<sub_len; j++)
-        	{
-            		if(string[i+j] != sub_string[j])
-            		{
-                		found = 0;
-                		break;
-            		}
-        	}
-		if(found == 1)
-		{
-		    	for(int j=i; j<=len-sub_len; j++)
-		    	{
-		        	string[j] = string[j + sub_len];
-		    	}
-			break;
-		}
-    	}
+    for(int i=0; i<len; i++)
+    {
+	found = 1;
+	for(int j=0; j<sub_len; j++)
+	{
+	    if(string[i+j] != sub_string[j])
+	    {
+		found = 0;
+		break;
+	    }
+        }
+	if(found == 1)
+	{
+     	    for(int j=i; j<=len-sub_len; j++)
+    	    {
+           	string[j] = string[j + sub_len];
+    	    }
+	    break;
+	}
+     }
 }
 
 

@@ -10,15 +10,14 @@
  */
 char *parse_string(char *value, char* token)
 {
-	char *pch = strtok(value, token);
-	
-	while(pch != NULL)
-	{
-		value = pch;
-		pch =strtok(NULL,token);
-	}
+    char *pch = strtok(value, token);
 
-	return value;
+    while(pch != NULL) 
+    {
+	value = pch;
+	pch =strtok(NULL,token);
+    }
+    return value;
 }
 
 /*
@@ -31,12 +30,14 @@ char *parse_string(char *value, char* token)
  */
 int is_background_process(char *operation)
 {
-	int len = strlen(operation);
-	char *ch = "&";
-	
-	if(operation[len-1] == ch[0])
-		return 1;
-	return 0;
+    int len = strlen(operation);
+    char *ch = "&";
+
+    if(operation[len-1] == ch[0])
+    {	
+	return 1;
+    }
+    return 0;
 }
 
 /*
@@ -46,22 +47,23 @@ int is_background_process(char *operation)
  */
 void background_execution(char *operation)
 {
-	pid_t child = fork();
-			
-	remove_string(operation,"&");
-			
-	if( child < 0 )
+    pid_t child = fork();	
+    remove_string(operation,"&");
+		
+    if( child < 0 )
+    {
+	perror("Error occurred...\n");
+	exit(-1);
+    }
+    else if( child == 0 )
+    {
+	if( strstr(operation, "|") != NULL)
 	{
-		perror("Error occurred...\n");
-		exit(-1);
-	}
-	else if( child == 0 )
-	{
-		if( strstr(operation, "|") != NULL)
-			pipe_operation_parser(operation);
-		execvp(operation_parser(operation)[0],operation_parser(operation));	
-	}
-	else if( child > 0 ){ }
+	    pipe_operation_parser(operation);
+	}	
+        execvp(operation_parser(operation)[0],operation_parser(operation));	
+    }
+    else if( child > 0 ){ }
 }
 
 
@@ -72,24 +74,26 @@ void background_execution(char *operation)
  */
 void execute_process(char *operation)
 {
-	pid_t child = fork();
-	
-	if( child < 0 )
-	{
-		perror("Error occurred...\n");
-		exit(-1);
-	}
-	else if( child == 0 )
-	{
-		if( strstr(operation, "|") != NULL)
-			pipe_operation_parser(operation);
-					
-		execvp(operation_parser(operation)[0],operation_parser(operation));	
-	}
-	else if( child > 0 )
-		wait(NULL);
+    pid_t child = fork();
 
-	wait(NULL);	
+    if( child < 0 )
+    {
+	perror("Error occurred...\n");
+	exit(-1);
+    }
+    else if( child == 0 )
+    {
+	if( strstr(operation, "|") != NULL)
+	{
+	     pipe_operation_parser(operation);
+	}
+	execvp(operation_parser(operation)[0],operation_parser(operation));	
+    }
+    else if( child > 0 )
+    {
+	wait(NULL);
+    }
+    wait(NULL);	
 }
 
 /*
@@ -101,21 +105,20 @@ void execute_process(char *operation)
  */
 char** operation_parser(char *operation)
 {
-  	char * pch;
-	char **argv= malloc(sizeof(char**));
-	int count = 0;
-	pch = strtok (operation," ");
-	
-	while (pch != NULL)
-	{
-		argv[count] = pch;
-		pch = strtok (NULL, " ");
-		count++;
-	}
-	
-	argv[count] = NULL;
+    char * pch;
+    char **argv= malloc(sizeof(char**));
+    int count = 0;
+    pch = strtok (operation," ");
 
-	return argv;
+    while (pch != NULL)
+    {
+	argv[count] = pch;
+	pch = strtok (NULL, " ");
+	count++;
+    }
+
+    argv[count] = NULL;
+    return argv;
 }
 
 /*
@@ -127,39 +130,37 @@ char** operation_parser(char *operation)
  */
 void execute_pipe(char **my_stdout, char **my_stdin)
 {
-	pid_t pid;
+    pid_t pid;
 
-	int fd[2];
-	int return_value = pipe(fd);
-	
-	if(return_value == -1)
-	{
-		perror("Something is wronge with my pipe...");
-		exit(1);
-	}
-	pid =fork();
-	
-	if( pid == 0)
-	{
-		close(1);// closing normal stdout 
-		dup(fd[1]);// making stdout same as fd[1] 
-		close(fd[0]); 
-		execvp(my_stdout[0],my_stdout); 	
-	}
+    int fd[2];
+    int return_value = pipe(fd);
 
-	else if(pid > 0)
-	{
-        	close(0);// closing normal stdin 
-        	dup(fd[0]);// making stdin same as fd[0]
-		close(fd[1]);   	
-		execvp(my_stdin[0],my_stdin);
-	}
-	
-	else
-	{ 
-		perror("Error occurred...\n");
-		exit(-1);
-	}
+    if(return_value == -1)
+    {
+	perror("Something is wronge with my pipe...");
+	exit(1);
+    }
+    pid =fork();
+
+    if( pid == 0)
+    {
+	close(1);// closing normal stdout 
+	dup(fd[1]);// making stdout same as fd[1] 
+	close(fd[0]); 
+	execvp(my_stdout[0],my_stdout); 	
+    }
+    else if(pid > 0)
+    {
+	close(0);// closing normal stdin 
+	dup(fd[0]);// making stdin same as fd[0]
+	close(fd[1]);   	
+	execvp(my_stdin[0],my_stdin);
+    }
+    else
+    { 
+	perror("Error occurred...\n");
+	exit(-1);
+    }
 }
 
 /*
@@ -170,37 +171,39 @@ void execute_pipe(char **my_stdout, char **my_stdin)
  */
 void pipe_operation_parser(char* operation)
 {	
-	char **op = malloc(sizeof(char**));
-	char **my_stdout = malloc(sizeof(char**));
-	char **my_stdin = malloc(sizeof(char**));
+    char **op = malloc(sizeof(char**));
+    char **my_stdout = malloc(sizeof(char**));
+    char **my_stdin = malloc(sizeof(char**));
 
-	int count = 0, k = 0;
+    int count = 0, k = 0;
+
+    op = operation_parser(operation);
 	
-	op= operation_parser(operation);
-		
-	while( op[count] != NULL){
-		if( strstr(op[count],"|") )
-		{
-			my_stdout[count] = NULL;//In order to use execvp() function
-			break;
-		}
-		else
-			my_stdout[count] = op[count];
-		
-		count++;
+    while( op[count] != NULL)
+    {
+	if( strstr(op[count],"|") )
+	{
+	    my_stdout[count] = NULL;//In order to use execvp() function
+	    break;
 	}
-	
+	else
+	{
+	    my_stdout[count] = op[count];
+	}
 	count++;
+    }
 
-	while( op[count] != NULL)
-	{	
-		my_stdin[k] = op[count];
-		k++;
-		count++;
-	}
-	my_stdin[count] = NULL;//In order to use execvp() function
-	
-	execute_pipe(my_stdout,my_stdin);
+    count++;
+
+    while( op[count] != NULL)
+    {	
+	my_stdin[k] = op[count];
+	k++;
+	count++;
+    }
+    my_stdin[count] = NULL;//In order to use execvp() function
+
+    execute_pipe(my_stdout,my_stdin);
 }
 
 
