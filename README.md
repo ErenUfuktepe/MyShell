@@ -27,5 +27,5 @@ the command following the "|". For example, if the user types "ls -al | sort", t
 command is run with stdout directed to a Unix pipe, and that the sort command is run with
 stdin coming from that same pipe.
 
-## Compile: 
+## Compile
  - gcc main.c queue.c build_in_commands.c system_commands.c -o myshell.out
